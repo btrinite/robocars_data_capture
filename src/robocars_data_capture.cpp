@@ -12,6 +12,7 @@
 #include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <fstream>
 
 #include <boost/format.hpp>
@@ -172,7 +173,6 @@ class onAutonomousDriving
 
 FSM_INITIAL_STATE(RobocarsStateMachine, onIdle)
 
-
 uint32_t mapRange(uint32_t in1,uint32_t in2,uint32_t out1,uint32_t out2,uint32_t value)
 {
   if (value<in1) {value=in1;}
@@ -276,8 +276,8 @@ bool RosInterface::saveData(const sensor_msgs::ImageConstPtr& image_msg, std::st
 
    jsonFilename = jpgFilename.replace(jpgFilename.rfind("."), jpgFilename.length(), ".json");
    jsonFile.open(jsonFilename);
-   obj["cam/image_array"] = jpgFilename.c_str();
-   obj["ms"] = image_msg->header.stamp.toNSec()/1e3;
+   obj["cam/image_array"] = basename(jpgFilename.c_str());
+   obj["ms"] = (uint64_t) (image_msg->header.stamp.toNSec()/1e3);
    obj["angle"] = lastSteeringValue;
    obj["throttle"] = lastThrottlingValue;
    obj["mode"] = drivingState2str[drivingState];
