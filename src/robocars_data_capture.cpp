@@ -183,7 +183,7 @@ void RosInterface::initParam() {
         node_.setParam("encoding",  std::string("bgr8"));
     }
     if (!node_.hasParam("filename_pattern")) {
-        node_.setParam("filename_pattern",std::string("/front%04i.%s"));
+        node_.setParam("filename_pattern",std::string("%s/front%04i.%s"));
     }
 }
 void RosInterface::updateParam() {
@@ -221,6 +221,7 @@ void RosInterface::newDataSet () {
         dataset_path = (dataset_path_format % base_path % date::format("%F", std::chrono::system_clock::now()) % datasetCount_).str();
         if (dirExists(dataset_path.c_str())==0) {
              mkdir(dataset_path.c_str(), 0777);
+             ROS_INFO("New Dataset %s", dataset_path.c_str());
             return;
         }
         datasetCount_++;
