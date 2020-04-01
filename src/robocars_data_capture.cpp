@@ -114,6 +114,8 @@ class onManualDriving
 
         void entry(void) override {
             onRunningMode::entry();
+            ri->newDataSet();
+            ri->enableCapture();
         };
 
         void react (AutonomousDrivingEvent const & e) override {
@@ -123,6 +125,7 @@ class onManualDriving
 
         void react(IdleStatusEvent const & e) override { 
             onRunningMode::react(e);
+            ri->disableCapture();
             transit<onIdle>();
         };
 
