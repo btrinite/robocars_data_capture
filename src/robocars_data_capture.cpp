@@ -235,8 +235,8 @@ void RosInterface::newDataSet () {
 
 
 void RosInterface::initSub () {
-    steering_sub = node_.subscribe<robocars_msgs::robocars_actuator_output>("/steering/output", 1, &RosInterface::steering_msg_cb, this);
-    throttling_sub = node_.subscribe<robocars_msgs::robocars_actuator_output>("/throttling/output", 1, &RosInterface::throttling_msg_cb, this);
+    steering_sub = node_.subscribe<robocars_msgs::robocars_actuator_output>("/steering_ctrl/output", 1, &RosInterface::steering_msg_cb, this);
+    throttling_sub = node_.subscribe<robocars_msgs::robocars_actuator_output>("/throttling_ctrl/output", 1, &RosInterface::throttling_msg_cb, this);
     state_sub = node_.subscribe<robocars_msgs::robocars_brain_state>("/robocars_brain_state", 1, &RosInterface::state_msg_cb, this);
     sub_image_and_camera = it->subscribeCamera("/front_video_resize/image", 1, &RosInterface::callbackWithCameraInfo, this);
 }
