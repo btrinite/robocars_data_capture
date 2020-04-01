@@ -80,6 +80,10 @@ class RosInterface
         void updateParam();
         void initSub();
 
+        void enableCapture ();
+        void disableCapture ();
+        void newDataSet ();
+
     private:
 
         void channels_msg_cb(const robocars_msgs::robocars_radio_channels::ConstPtr& msg);
@@ -87,10 +91,6 @@ class RosInterface
         void callbackWithCameraInfo(const sensor_msgs::ImageConstPtr& image_msg, const sensor_msgs::CameraInfoConstPtr& info);
 
         bool saveImage(const sensor_msgs::ImageConstPtr& image_msg, std::string &filename);
-
-        void enableCapture ();
-        void DisableCapture ();
-        void newDataSet ();
 
         bool record_data;
         size_t imageCount_;

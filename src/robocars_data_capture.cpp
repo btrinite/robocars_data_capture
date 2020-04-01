@@ -197,7 +197,7 @@ void RosInterface::updateParam() {
 void RosInterface::enableCapture () {
     record_data=true;
 }
-void RosInterface::DisableCapture () {
+void RosInterface::disableCapture () {
     record_data=false;
 
 }
