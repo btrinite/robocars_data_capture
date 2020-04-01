@@ -274,7 +274,8 @@ bool RosInterface::saveData(const sensor_msgs::ImageConstPtr& image_msg, std::st
    std::ofstream jsonFile;
    std::string jsonFilename;
 
-   jsonFilename = jpgFilename.replace(jpgFilename.rfind("."), jpgFilename.length(), ".json");
+   jsonFilename = jpgFilename;
+   jsonFilename.replace(jpgFilename.rfind("."), jpgFilename.length(), ".json");
    jsonFile.open(jsonFilename);
    obj["cam/image_array"] = basename(jpgFilename.c_str());
    obj["ms"] = (uint64_t) (image_msg->header.stamp.toNSec()/1e3);
