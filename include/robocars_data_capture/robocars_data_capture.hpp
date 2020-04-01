@@ -92,6 +92,7 @@ class RosInterface
         void callbackWithCameraInfo(const sensor_msgs::ImageConstPtr& image_msg, const sensor_msgs::CameraInfoConstPtr& info);
 
         bool saveImage(const sensor_msgs::ImageConstPtr& image_msg, std::string &jpgFilename);
+        bool saveData(const sensor_msgs::ImageConstPtr& image_msg, std::string &jpgFilename);
 
         bool record_data;
         size_t imageCount_;

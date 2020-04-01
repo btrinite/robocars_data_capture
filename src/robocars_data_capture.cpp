@@ -269,30 +269,33 @@ bool RosInterface::saveImage(const sensor_msgs::ImageConstPtr& image_msg, std::s
     return true;
 }
 
+bool RosInterface::saveData(const sensor_msgs::ImageConstPtr& image_msg, std::string &jpgFilename) {
+   json::JSON obj;
+   std::ofstream jsonFile;
+   std::string jsonFilename;
+
+   jsonFilename = jpgFilename.replace(jpgFilename.rfind("."), jpgFilename.length(), ".json");
+   jsonFile.open(jsonFilename);
+   obj["cam/image_array"] = jpgFilename.c_str();
+   obj["ms"] = image_msg->header.stamp.toNSec()/1e3;
+   obj["angle"] = lastSteeringValue;
+   obj["throttle"] = lastThrottlingValue;
+   obj["mode"] = drivingState2str[drivingState];
+   obj["flag"] = "";
+   jsonFile << obj << std::endl;
+   jsonFile.close();
+}
 
 void RosInterface::callbackWithCameraInfo(const sensor_msgs::ImageConstPtr& image_msg, const sensor_msgs::CameraInfoConstPtr& info) {
 
-   json::JSON obj;
-   std::ofstream jsonFile;
    std::string jpgFilename;
-   std::string jsonFilename;
 
-    if (record_data) {
+    if (record_data && lastThrottlingValue > 0.0) {
         if (!saveImage(image_msg, jpgFilename))
         return;
 
         // save the metadata
-        jsonFilename = jpgFilename.replace(jpgFilename.rfind("."), jpgFilename.length(), ".json");
-        jsonFile.open(jsonFilename);
-        obj["cam/image_array"] = jpgFilename.c_str();
-        obj["ms"] = image_msg->header.stamp.toNSec()/1e3;
-        obj["angle"] = lastSteeringValue;
-        obj["throttle"] = lastThrottlingValue;
-        obj["mode"] = drivingState2str[drivingState];
-        obj["flag"] = "";
-        jsonFile << obj << std::endl;
-        jsonFile.close();
-        
+        saveData (image_msg, jpgFilename);
         imageCount_++;
     }
 }
@@ -300,6 +303,7 @@ void RosInterface::callbackWithCameraInfo(const sensor_msgs::ImageConstPtr& imag
 void RosInterface::steering_msg_cb(const robocars_msgs::robocars_actuator_output::ConstPtr& msg){
     lastSteeringValue = msg->norm;
 }
+
 
 void RosInterface::throttling_msg_cb(const robocars_msgs::robocars_actuator_output::ConstPtr& msg){
     lastThrottlingValue = msg->norm;
