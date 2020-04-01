@@ -12,20 +12,20 @@
 #include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <fstream>
 
 #include <boost/format.hpp>
 
 #include <opencv2/highgui/highgui.hpp>
 
 #include <date.h>
+#include <json.hpp>
 
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
 
 
 #include <robocars_msgs/robocars_actuator_output.h>
-#include <robocars_msgs/robocars_actuator_ctrl_mode.h>
-#include <robocars_msgs/robocars_radio_channels.h>
 #include <robocars_msgs/robocars_brain_state.h>
 
 #include <robocars_data_capture.hpp>
@@ -40,6 +40,8 @@ static std::string dataset_path;
 static boost::format file_format;
 static boost::format dataset_path_format;
 
+const char* drivingState2str[] = {"idle", "user", "pilot"};
+static uint32_t drivingState;
 
 class onRunningMode;
 class onIdle;
@@ -90,6 +92,7 @@ class onIdle
 
         void entry(void) override {
             onRunningMode::entry();
+            drivingState = 0;
         };
   
         void react(ManualDrivingEvent const & e) override { 
@@ -114,6 +117,7 @@ class onManualDriving
 
         void entry(void) override {
             onRunningMode::entry();
+            drivingState=1;
             ri->newDataSet();
             ri->enableCapture();
         };
@@ -148,6 +152,7 @@ class onAutonomousDriving
 
         virtual void entry(void) { 
             onRunningMode::entry();
+            drivingState=2;
         };  
 
         virtual void react(IdleStatusEvent                 const & e) override { 
@@ -155,7 +160,7 @@ class onAutonomousDriving
             transit<onIdle>();
         };
 
-        virtual void react(ManualDrivingEvent                     const & e) override { 
+        virtual void react(ManualDrivingEvent              const & e) override { 
             onRunningMode::react(e);
             transit<onManualDriving>();
         };
@@ -183,7 +188,7 @@ void RosInterface::initParam() {
         node_.setParam("encoding",  std::string("bgr8"));
     }
     if (!node_.hasParam("filename_pattern")) {
-        node_.setParam("filename_pattern",std::string("%s/front%04i.%s"));
+        node_.setParam("filename_pattern",std::string("%s/front%08i.%s"));
     }
 }
 void RosInterface::updateParam() {
@@ -230,12 +235,16 @@ void RosInterface::newDataSet () {
 
 
 void RosInterface::initSub () {
-    channels_sub = node_.subscribe<robocars_msgs::robocars_radio_channels>("/radio_channels", 1, &RosInterface::channels_msg_cb, this);
+    steering_sub = node_.subscribe<robocars_msgs::robocars_actuator_output>("/steering/output", 1, &RosInterface::steering_msg_cb, this);
+    throttling_sub = node_.subscribe<robocars_msgs::robocars_actuator_output>("/throttling/output", 1, &RosInterface::throttling_msg_cb, this);
     state_sub = node_.subscribe<robocars_msgs::robocars_brain_state>("/robocars_brain_state", 1, &RosInterface::state_msg_cb, this);
     sub_image_and_camera = it->subscribeCamera("/front_video_resize/image", 1, &RosInterface::callbackWithCameraInfo, this);
 }
 
-bool RosInterface::saveImage(const sensor_msgs::ImageConstPtr& image_msg, std::string &filename) {
+static _Float32 lastSteeringValue;
+static _Float32 lastThrottlingValue;
+
+bool RosInterface::saveImage(const sensor_msgs::ImageConstPtr& image_msg, std::string &jpgFilename) {
     cv::Mat image;
     try
     {
@@ -248,11 +257,10 @@ bool RosInterface::saveImage(const sensor_msgs::ImageConstPtr& image_msg, std::s
 
     if (!image.empty()) {
       try {
-        filename = (file_format % dataset_path % imageCount_ % "jpg").str();
+        jpgFilename = (file_format % dataset_path % imageCount_ % "jpg").str();
       } catch (...) { file_format.clear(); }
 
-      cv::imwrite(filename, image);
-      ROS_INFO("Saved image %s", filename.c_str());
+      cv::imwrite(jpgFilename, image);
 
     } else {
         ROS_WARN("Couldn't save image, no data!");
@@ -264,23 +272,37 @@ bool RosInterface::saveImage(const sensor_msgs::ImageConstPtr& image_msg, std::s
 
 void RosInterface::callbackWithCameraInfo(const sensor_msgs::ImageConstPtr& image_msg, const sensor_msgs::CameraInfoConstPtr& info) {
 
-   std::string filename;
+   json::JSON obj;
+   std::ofstream jsonFile;
+   std::string jpgFilename;
+   std::string jsonFilename;
 
     if (record_data) {
-        if (!saveImage(image_msg, filename))
+        if (!saveImage(image_msg, jpgFilename))
         return;
 
-        // save the CameraInfo
-        if (info) {
-        filename = filename.replace(filename.rfind("."), filename.length(), ".ini");
-        }
+        // save the metadata
+        jsonFilename = jpgFilename.replace(jpgFilename.rfind("."), jpgFilename.length(), ".json");
+        jsonFile.open(jsonFilename);
+        obj["cam/image_array"] = jpgFilename.c_str();
+        obj["ms"] = image_msg->header.stamp.toNSec()/1e3;
+        obj["angle"] = lastSteeringValue;
+        obj["throttle"] = lastThrottlingValue;
+        obj["mode"] = drivingState2str[drivingState];
+        obj["flag"] = "";
+        jsonFile << obj << std::endl;
+        jsonFile.close();
         
         imageCount_++;
     }
 }
 
-void RosInterface::channels_msg_cb(const robocars_msgs::robocars_radio_channels::ConstPtr& msg){
-    
+void RosInterface::steering_msg_cb(const robocars_msgs::robocars_actuator_output::ConstPtr& msg){
+    lastSteeringValue = msg->norm;
+}
+
+void RosInterface::throttling_msg_cb(const robocars_msgs::robocars_actuator_output::ConstPtr& msg){
+    lastThrottlingValue = msg->norm;
 }
 
 void RosInterface::state_msg_cb(const robocars_msgs::robocars_brain_state::ConstPtr& msg) {    

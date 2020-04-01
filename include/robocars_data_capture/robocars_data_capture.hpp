@@ -86,19 +86,23 @@ class RosInterface
 
     private:
 
-        void channels_msg_cb(const robocars_msgs::robocars_radio_channels::ConstPtr& msg);
+        void steering_msg_cb(const robocars_msgs::robocars_actuator_output::ConstPtr& msg);
+        void throttling_msg_cb(const robocars_msgs::robocars_actuator_output::ConstPtr& msg);
         void state_msg_cb(const robocars_msgs::robocars_brain_state::ConstPtr& msg);
         void callbackWithCameraInfo(const sensor_msgs::ImageConstPtr& image_msg, const sensor_msgs::CameraInfoConstPtr& info);
 
-        bool saveImage(const sensor_msgs::ImageConstPtr& image_msg, std::string &filename);
+        bool saveImage(const sensor_msgs::ImageConstPtr& image_msg, std::string &jpgFilename);
 
         bool record_data;
         size_t imageCount_;
         size_t datasetCount_;
+
         ros::NodeHandle node_;
+
         image_transport::ImageTransport * it;
         image_transport::CameraSubscriber sub_image_and_camera;
-        ros::Subscriber channels_sub;
+        ros::Subscriber throttling_sub;
+        ros::Subscriber steering_sub;
         ros::Subscriber state_sub;
 };
 
