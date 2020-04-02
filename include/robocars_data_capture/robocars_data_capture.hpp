@@ -2,6 +2,9 @@
 #include <ros/ros.h>
 #include <stdio.h>
 
+
+#define SYNCH_TOPICS
+
 struct BaseEvent : tinyfsm::Event
 {
     public:
@@ -69,7 +72,9 @@ class RosInterface
         RosInterface() : node_("~") {
             initParam();
             updateParam();
+            #ifndef SYNCH_TOPICS
             it = new image_transport::ImageTransport(node_);
+            #endif
             imageCount_= 0;
             datasetCount_ = 0;
             record_data = false;
@@ -86,10 +91,7 @@ class RosInterface
 
     private:
 
-        void steering_msg_cb(const robocars_msgs::robocars_actuator_output::ConstPtr& msg);
-        void throttling_msg_cb(const robocars_msgs::robocars_actuator_output::ConstPtr& msg);
         void state_msg_cb(const robocars_msgs::robocars_brain_state::ConstPtr& msg);
-        void callbackWithCameraInfo(const sensor_msgs::ImageConstPtr& image_msg, const sensor_msgs::CameraInfoConstPtr& info);
 
         bool saveImage(const sensor_msgs::ImageConstPtr& image_msg, std::string &jpgFilename);
         bool saveData(const sensor_msgs::ImageConstPtr& image_msg, std::string &jpgFilename);
@@ -99,11 +101,26 @@ class RosInterface
         size_t datasetCount_;
 
         ros::NodeHandle node_;
+        ros::Publisher state_sub;
 
-        image_transport::ImageTransport * it;
-        image_transport::CameraSubscriber sub_image_and_camera;
+#ifdef SYNCH_TOPICS
+        void callback(  const robocars_msgs::robocars_actuator_output::ConstPtr& steering,
+                        const robocars_msgs::robocars_actuator_output::ConstPtr& throttling,
+                        const robocars_msgs::robocars_tof::ConstPtr& tof1,
+                        const robocars_msgs::robocars_tof::ConstPtr& tof2,
+                        const sensor_msgs::ImageConstPtr& image, 
+                        const sensor_msgs::CameraInfoConstPtr& cam_info);
+#else
+        callbackWithCameraInfo(const sensor_msgs::ImageConstPtr& image_msg, const sensor_msgs::CameraInfoConstPtr& info);
+        steering_msg_cb(const robocars_msgs::robocars_actuator_output::ConstPtr& msg);
+        throttling_msg_cb(const robocars_msgs::robocars_actuator_output::ConstPtr& msg);
+
         ros::Subscriber throttling_sub;
         ros::Subscriber steering_sub;
         ros::Subscriber state_sub;
+        image_transport::ImageTransport * it;
+        image_transport::CameraSubscriber sub_image_and_camera;
+#endif
+
 };
 
