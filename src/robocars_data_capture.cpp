@@ -49,8 +49,8 @@ static std::string dataset_path;
 static boost::format file_format;
 static boost::format dataset_path_format;
 
-const char* drivingState2str[] = {"idle", "user", "pilot"};
-static uint32_t drivingState;
+const char* drivingMode2str[] = {"idle", "user", "pilot"};
+static uint32_t drivingMode;
 
 class onRunningMode;
 class onIdle;
@@ -101,7 +101,7 @@ class onIdle
 
         void entry(void) override {
             onRunningMode::entry();
-            drivingState = 0;
+            drivingMode = 0;
         };
   
         void react(ManualDrivingEvent const & e) override { 
@@ -126,13 +126,14 @@ class onManualDriving
 
         void entry(void) override {
             onRunningMode::entry();
-            drivingState=1;
-            ri->newDataSet();
+            drivingMode=1;
+            ri->newDataSet(drivingMode);
             ri->enableCapture();
         };
 
         void react (AutonomousDrivingEvent const & e) override {
             onRunningMode::react(e);
+            ri->disableCapture();
             transit<onAutonomousDriving>();
         }
 
@@ -161,16 +162,20 @@ class onAutonomousDriving
 
         virtual void entry(void) { 
             onRunningMode::entry();
-            drivingState=2;
+            drivingMode=2;
+            ri->newDataSet(drivingMode);
+            ri->enableCapture();
         };  
 
         virtual void react(IdleStatusEvent                 const & e) override { 
             onRunningMode::react(e);
+            ri->disableCapture();
             transit<onIdle>();
         };
 
         virtual void react(ManualDrivingEvent              const & e) override { 
             onRunningMode::react(e);
+            ri->disableCapture();
             transit<onManualDriving>();
         };
 
@@ -227,11 +232,21 @@ int dirExists(const char *path)
         return 0;
 }
 
-void RosInterface::newDataSet () {
+void RosInterface::newDataSet (uint32_t mode) {
     imageCount_ = 0;
     datasetCount_++;
     do {
-        dataset_path = (dataset_path_format % base_path % date::format("%F", std::chrono::system_clock::now()) % datasetCount_).str();
+        switch (mode) {
+            case 1:
+                dataset_path = (dataset_path_format % base_path % date::format("%F", std::chrono::system_clock::now()) % "user" % datasetCount_).str();
+            break;
+            case 2:
+                dataset_path = (dataset_path_format % base_path % date::format("%F", std::chrono::system_clock::now()) % "pilot" % datasetCount_).str();
+            break;
+            default:
+                return;
+            break;
+        }
         if (dirExists(dataset_path.c_str())==0) {
              mkdir(dataset_path.c_str(), 0777);
              ROS_INFO("New Dataset %s", dataset_path.c_str());
@@ -323,7 +338,7 @@ bool RosInterface::saveData(const sensor_msgs::ImageConstPtr& image_msg, std::st
    obj["ms"] = (uint64_t) (image_msg->header.stamp.toNSec()/1e3);
    obj["angle"] = lastSteeringValue;
    obj["throttle"] = lastThrottlingValue;
-   obj["mode"] = drivingState2str[drivingState];
+   obj["mode"] = drivingMode2str[drivingMode];
    obj["tof1"] = lastTof1Value;
    obj["tof2"] = lastTof2Value;
    obj["flag"] = "";
@@ -412,7 +427,8 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "robocars_data_capture");
     
-    dataset_path_format.parse("%s/%s-run-%02d/");
+    /*Format : <path>/<date>-<mode>-<index>*/
+    dataset_path_format.parse("%s/%s-%s-%02d/");
     ri = new RosInterface;
 
     fsm_list::start();

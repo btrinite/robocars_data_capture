@@ -88,7 +88,7 @@ class RosInterface
 
         void enableCapture ();
         void disableCapture ();
-        void newDataSet ();
+        void newDataSet (uint32_t mode);
 
     private:
 
