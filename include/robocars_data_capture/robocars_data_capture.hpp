@@ -101,7 +101,7 @@ class RosInterface
         size_t datasetCount_;
 
         ros::NodeHandle node_;
-        ros::Publisher state_sub;
+        ros::Subscriber state_sub;
 
 #ifdef SYNCH_TOPICS
         void callback(  const robocars_msgs::robocars_actuator_output::ConstPtr& steering,
@@ -117,7 +117,6 @@ class RosInterface
 
         ros::Subscriber throttling_sub;
         ros::Subscriber steering_sub;
-        ros::Subscriber state_sub;
         image_transport::ImageTransport * it;
         image_transport::CameraSubscriber sub_image_and_camera;
 #endif
