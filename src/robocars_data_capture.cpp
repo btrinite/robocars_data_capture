@@ -273,8 +273,9 @@ void RosInterface::initSub () {
 #else
     steering_sub = node_.subscribe<robocars_msgs::robocars_actuator_output>("/steering_ctrl/output", 1, &RosInterface::steering_msg_cb, this);
     throttling_sub = node_.subscribe<robocars_msgs::robocars_actuator_output>("/throttling_ctrl/output", 1, &RosInterface::throttling_msg_cb, this);
-    state_sub = node_.subscribe<robocars_msgs::robocars_brain_state>("/robocars_brain_state", 1, &RosInterface::state_msg_cb, this);
     sub_image_and_camera = it->subscribeCamera("/front_video_resize/image", 1, &RosInterface::callbackWithCameraInfo, this);
+    tof1_sub = node_.subscribe<robocars_msgs::robocars_tof>("/sensors/tof1", 1, &RosInterface::tof1_msg_cb, this);
+    tof2_sub = node_.subscribe<robocars_msgs::robocars_tof>("/sensors/tof2", 1, &RosInterface::tof2_msg_cb, this);
 #endif
     state_sub = node_.subscribe<robocars_msgs::robocars_brain_state>("/robocars_brain_state", 1, &RosInterface::state_msg_cb, this);
 
@@ -377,6 +378,15 @@ void RosInterface::steering_msg_cb(const robocars_msgs::robocars_actuator_output
 void RosInterface::throttling_msg_cb(const robocars_msgs::robocars_actuator_output::ConstPtr& msg){
     lastThrottlingValue = msg->norm;
 }
+
+void RosInterface::tof1_msg_cb(const robocars_msgs::robocars_tof::ConstPtr& msg){
+    lastTof1Value = msg->distance;
+}
+
+void RosInterface::tof2_msg_cb(const robocars_msgs::robocars_tof::ConstPtr& msg){
+    lastTof2Value = msg->distance;
+}
+
 #endif
 
 void RosInterface::state_msg_cb(const robocars_msgs::robocars_brain_state::ConstPtr& msg) {    

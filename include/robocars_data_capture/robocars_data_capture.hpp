@@ -3,7 +3,8 @@
 #include <stdio.h>
 
 
-#define SYNCH_TOPICS
+//#define SYNCH_TOPICS
+//#define SIMPLE_SYNC
 
 struct BaseEvent : tinyfsm::Event
 {
@@ -111,12 +112,16 @@ class RosInterface
                         const sensor_msgs::ImageConstPtr& image, 
                         const sensor_msgs::CameraInfoConstPtr& cam_info);
 #else
-        callbackWithCameraInfo(const sensor_msgs::ImageConstPtr& image_msg, const sensor_msgs::CameraInfoConstPtr& info);
-        steering_msg_cb(const robocars_msgs::robocars_actuator_output::ConstPtr& msg);
-        throttling_msg_cb(const robocars_msgs::robocars_actuator_output::ConstPtr& msg);
+        void callbackWithCameraInfo(const sensor_msgs::ImageConstPtr& image_msg, const sensor_msgs::CameraInfoConstPtr& info);
+        void steering_msg_cb(const robocars_msgs::robocars_actuator_output::ConstPtr& msg);
+        void throttling_msg_cb(const robocars_msgs::robocars_actuator_output::ConstPtr& msg);
+        void tof1_msg_cb(const robocars_msgs::robocars_tof::ConstPtr& msg);
+        void tof2_msg_cb(const robocars_msgs::robocars_tof::ConstPtr& msg);
 
         ros::Subscriber throttling_sub;
         ros::Subscriber steering_sub;
+        ros::Subscriber tof1_sub;
+        ros::Subscriber tof2_sub;
         image_transport::ImageTransport * it;
         image_transport::CameraSubscriber sub_image_and_camera;
 #endif
