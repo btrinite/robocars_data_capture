@@ -375,7 +375,9 @@ void RosInterface::callbackWithCameraInfo(const sensor_msgs::ImageConstPtr& imag
 
    std::string jpgFilename;
 
-    if (record_data && lastThrottlingValue > 0.0) {
+    if (record_data && (
+            ((drivingMode == 1 ) && (lastThrottlingValue > 0.0))
+         || (drivingMode == 2 ))) {
         if (!saveImage(image_msg, jpgFilename))
         return;
 
