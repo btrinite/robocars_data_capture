@@ -56,7 +56,6 @@ class onRunningMode;
 class onIdle;
 class onManualDriving;
 class onAutonomousDriving;
-class onQualibtrateMode;
 
 class onRunningMode
 : public RobocarsStateMachine
