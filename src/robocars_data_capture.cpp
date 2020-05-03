@@ -35,6 +35,7 @@
 
 #include <robocars_msgs/robocars_actuator_output.h>
 #include <robocars_msgs/robocars_brain_state.h>
+#include <robocars_msgs/robocars_mark.h>
 #include <robocars_msgs/robocars_tof.h>
 
 #include <robocars_data_capture.hpp>
@@ -290,15 +291,17 @@ void RosInterface::initSub () {
     sub_image_and_camera = it->subscribeCamera("/front_video_resize/image", 1, &RosInterface::callbackWithCameraInfo, this);
     tof1_sub = node_.subscribe<robocars_msgs::robocars_tof>("/sensors/tof1", 1, &RosInterface::tof1_msg_cb, this);
     tof2_sub = node_.subscribe<robocars_msgs::robocars_tof>("/sensors/tof2", 1, &RosInterface::tof2_msg_cb, this);
+    mark_sub = node_.subscribe<robocars_msgs::robocars_mark>("/mark", 1, &RosInterface::mark_msg_cb, this);
 #endif
     state_sub = node_.subscribe<robocars_msgs::robocars_brain_state>("/robocars_brain_state", 1, &RosInterface::state_msg_cb, this);
 
 }
 
-static _Float32 lastSteeringValue;
-static _Float32 lastThrottlingValue;
-static uint32_t lastTof1Value;
-static uint32_t lastTof2Value;
+static _Float32 lastSteeringValue=0;
+static _Float32 lastThrottlingValue=0;
+static uint32_t lastTof1Value=0;
+static uint32_t lastTof2Value=0;
+static uint32_t lastLaneValue=0;
 
 bool RosInterface::saveImage(const sensor_msgs::ImageConstPtr& image_msg, std::string &jpgFilename) {
     cv::Mat image;
@@ -340,7 +343,7 @@ bool RosInterface::saveData(const sensor_msgs::ImageConstPtr& image_msg, std::st
    obj["mode"] = drivingMode2str[drivingMode];
    obj["tof1"] = lastTof1Value;
    obj["tof2"] = lastTof2Value;
-   obj["flag"] = "";
+   obj["mark"] = lastLaneValue;
    jsonFile << obj << std::endl;
    jsonFile.close();
 }
@@ -401,6 +404,10 @@ void RosInterface::tof1_msg_cb(const robocars_msgs::robocars_tof::ConstPtr& msg)
 
 void RosInterface::tof2_msg_cb(const robocars_msgs::robocars_tof::ConstPtr& msg){
     lastTof2Value = msg->distance;
+}
+
+void RosInterface::mark_msg_cb(const robocars_msgs::robocars_mark::ConstPtr& msg){
+    lastLaneValue = msg->mark;
 }
 
 #endif

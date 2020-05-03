@@ -117,11 +117,13 @@ class RosInterface
         void throttling_msg_cb(const robocars_msgs::robocars_actuator_output::ConstPtr& msg);
         void tof1_msg_cb(const robocars_msgs::robocars_tof::ConstPtr& msg);
         void tof2_msg_cb(const robocars_msgs::robocars_tof::ConstPtr& msg);
+        void mark_msg_cb(const robocars_msgs::robocars_mark::ConstPtr& msg);
 
         ros::Subscriber throttling_sub;
         ros::Subscriber steering_sub;
         ros::Subscriber tof1_sub;
         ros::Subscriber tof2_sub;
+        ros::Subscriber mark_sub;
         image_transport::ImageTransport * it;
         image_transport::CameraSubscriber sub_image_and_camera;
 #endif
