@@ -286,14 +286,14 @@ void RosInterface::initSub () {
 #endif
     sync.registerCallback(boost::bind(&RosInterface::callback,this, _1, _2, _3, _4, _5, _6));
 #else
-    steering_sub = node_.subscribe<robocars_msgs::robocars_actuator_output>("/steering_ctrl/output", 1, &RosInterface::steering_msg_cb, this);
-    throttling_sub = node_.subscribe<robocars_msgs::robocars_actuator_output>("/throttling_ctrl/output", 1, &RosInterface::throttling_msg_cb, this);
-    sub_image_and_camera = it->subscribeCamera("/front_video_resize/image", 1, &RosInterface::callbackWithCameraInfo, this);
-    tof1_sub = node_.subscribe<robocars_msgs::robocars_tof>("/sensors/tof1", 1, &RosInterface::tof1_msg_cb, this);
-    tof2_sub = node_.subscribe<robocars_msgs::robocars_tof>("/sensors/tof2", 1, &RosInterface::tof2_msg_cb, this);
-    mark_sub = node_.subscribe<robocars_msgs::robocars_mark>("/mark", 1, &RosInterface::mark_msg_cb, this);
+    steering_sub = node_.subscribe<robocars_msgs::robocars_actuator_output>("/steering_ctrl/output", 2, &RosInterface::steering_msg_cb, this);
+    throttling_sub = node_.subscribe<robocars_msgs::robocars_actuator_output>("/throttling_ctrl/output", 2, &RosInterface::throttling_msg_cb, this);
+    sub_image_and_camera = it->subscribeCamera("/front_video_resize/image", 2, &RosInterface::callbackWithCameraInfo, this);
+    tof1_sub = node_.subscribe<robocars_msgs::robocars_tof>("/sensors/tof1", 2, &RosInterface::tof1_msg_cb, this);
+    tof2_sub = node_.subscribe<robocars_msgs::robocars_tof>("/sensors/tof2", 2, &RosInterface::tof2_msg_cb, this);
+    mark_sub = node_.subscribe<robocars_msgs::robocars_mark>("/mark", 2, &RosInterface::mark_msg_cb, this);
 #endif
-    state_sub = node_.subscribe<robocars_msgs::robocars_brain_state>("/robocars_brain_state", 1, &RosInterface::state_msg_cb, this);
+    state_sub = node_.subscribe<robocars_msgs::robocars_brain_state>("/robocars_brain_state", 2, &RosInterface::state_msg_cb, this);
 
 }
 
