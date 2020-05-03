@@ -337,6 +337,7 @@ bool RosInterface::saveData(const sensor_msgs::ImageConstPtr& image_msg, std::st
    jsonFilename.replace(jpgFilename.rfind("."), jpgFilename.length(), ".json");
    jsonFile.open(jsonFilename);
    obj["cam/image_array"] = basename(jpgFilename.c_str());
+   obj["cam/seq"] = (uint32_t) (image_msg->header.seq);
    obj["ms"] = (uint64_t) (image_msg->header.stamp.toNSec()/1e3);
    obj["angle"] = lastSteeringValue;
    obj["throttle"] = lastThrottlingValue;
