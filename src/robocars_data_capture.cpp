@@ -1,10 +1,41 @@
 /**
- * @file offb_raw_node.cpp
- * @brief Offboard control example node, written with MAVROS version 0.19.x, PX4 Pro Flight
- * Stack and tested in Gazebo SITL
- source $src_path/Tools/setup_gazebo.bash ${src_path} ${build_path}
-
- gzserver --verbose ${src_path}/Tools/sitl_gazebo/worlds/${model}.world &
+ * @file robocars_data_capture.cpp
+ * @brief Module to capture images and associated data.
+ * 
+ * Copyright (c) 2020 Benoit TRINITE
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ * 
+ * Topic subscribed : 
+ *  - /steering_ctrl/output : current steering order sent to actutors
+ *  - /throttling_ctrl/output : current throttling order sent to ESC
+ *  - /sensors/tof1 : current data from sensors, not used for now
+ *  - /sensors/tof2 : current data from sensors, not used for now
+ *  - /front_video_resize/image : current image from camera
+ *  - /mark : mark from radio controller (for manual marking with free channels)
+ * 
+ * Topic published :
+ *  - None 
+ * Parameters :
+ *  - loop_hz : main loop refresh freq
+ *  - encoding : expected format for saved image 
+ *  - filename_pattern : pattern to use to create file for recording
  */
 #include <tinyfsm.hpp>
 #include <ros/ros.h>
