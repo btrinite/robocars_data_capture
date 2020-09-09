@@ -138,6 +138,7 @@ class RosInterface
                         const sensor_msgs::ImageConstPtr& image, 
                         const sensor_msgs::CameraInfoConstPtr& cam_info);
 #else
+        void callbackNoCameraInfo(const sensor_msgs::ImageConstPtr& image_msg);
         void callbackWithCameraInfo(const sensor_msgs::ImageConstPtr& image_msg, const sensor_msgs::CameraInfoConstPtr& info);
         void steering_msg_cb(const robocars_msgs::robocars_actuator_output::ConstPtr& msg);
         void throttling_msg_cb(const robocars_msgs::robocars_actuator_output::ConstPtr& msg);
@@ -152,6 +153,7 @@ class RosInterface
         ros::Subscriber mark_sub;
         image_transport::ImageTransport * it;
         image_transport::CameraSubscriber sub_image_and_camera;
+        image_transport::Subscriber sub_image;
 #endif
 
 };

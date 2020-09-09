@@ -319,7 +319,8 @@ void RosInterface::initSub () {
 #else
     steering_sub = node_.subscribe<robocars_msgs::robocars_actuator_output>("/steering_ctrl/output", 2, &RosInterface::steering_msg_cb, this);
     throttling_sub = node_.subscribe<robocars_msgs::robocars_actuator_output>("/throttling_ctrl/output", 2, &RosInterface::throttling_msg_cb, this);
-    sub_image_and_camera = it->subscribeCamera("/front_video_resize/image", 2, &RosInterface::callbackWithCameraInfo, this);
+    //sub_image_and_camera = it->subscribeCamera("/front_video_resize/image", 2, &RosInterface::callbackWithCameraInfo, this);
+    sub_image = it->subscribe("/front_video_resize/image", 2, &RosInterface::callbackNoCameraInfo, this);
     tof1_sub = node_.subscribe<robocars_msgs::robocars_tof>("/sensors/tof1", 2, &RosInterface::tof1_msg_cb, this);
     tof2_sub = node_.subscribe<robocars_msgs::robocars_tof>("/sensors/tof2", 2, &RosInterface::tof2_msg_cb, this);
     mark_sub = node_.subscribe<robocars_msgs::robocars_mark>("/mark", 2, &RosInterface::mark_msg_cb, this);
@@ -378,6 +379,8 @@ bool RosInterface::saveData(const sensor_msgs::ImageConstPtr& image_msg, std::st
    obj["mark"] = lastLaneValue;
    jsonFile << obj << std::endl;
    jsonFile.close();
+ 
+   return true;
 }
 
 #ifdef SYNCH_TOPICS
@@ -405,8 +408,7 @@ void RosInterface::callback( const robocars_msgs::robocars_actuator_output::Cons
 }
 
 #else
-void RosInterface::callbackWithCameraInfo(const sensor_msgs::ImageConstPtr& image_msg, const sensor_msgs::CameraInfoConstPtr& info) {
-
+void RosInterface::callbackNoCameraInfo(const sensor_msgs::ImageConstPtr& image_msg) {
    std::string jpgFilename;
 
     if (record_data && (
@@ -419,6 +421,11 @@ void RosInterface::callbackWithCameraInfo(const sensor_msgs::ImageConstPtr& imag
         saveData (image_msg, jpgFilename);
         imageCount_++;
     }
+}
+
+void RosInterface::callbackWithCameraInfo(const sensor_msgs::ImageConstPtr& image_msg, const sensor_msgs::CameraInfoConstPtr& info) {
+
+    callbackNoCameraInfo(image_msg);
 }
 
 void RosInterface::steering_msg_cb(const robocars_msgs::robocars_actuator_output::ConstPtr& msg){
