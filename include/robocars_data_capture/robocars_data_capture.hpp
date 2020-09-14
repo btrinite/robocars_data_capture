@@ -150,7 +150,6 @@ class RosInterface
         ros::Subscriber throttling_sub;
         ros::Subscriber steering_sub;
         ros::Subscriber braking_sub;
-        ros::Subscriber mark_sub;
         ros::Subscriber tof1_sub;
         ros::Subscriber tof2_sub;
         ros::Subscriber mark_sub;
