@@ -78,6 +78,7 @@ static std::string encoding;
 static std::string filename_pattern;
 static std::string base_path;
 static std::string dataset_path;
+static bool mark_base_filtering;
 static boost::format file_format;
 static boost::format dataset_path_format;
 
@@ -234,12 +235,16 @@ void RosInterface::initParam() {
     if (!node_.hasParam("filename_pattern")) {
         node_.setParam("filename_pattern",std::string("%s/front%08i.%s"));
     }
+    if (!node_.hasParam("mark_based_filtering")) {
+        node_.setParam("mark_based_filtering",true);
+    }
 }
 void RosInterface::updateParam() {
     node_.getParam("loop_hz", loop_hz);
     node_.getParam("encoding", encoding);
     node_.getParam("filename_pattern", filename_pattern);
     node_.getParam("base_path", base_path);
+    node_.getParam("mark_based_filtering", mark_base_filtering);
     file_format.parse(filename_pattern);
 }
 
@@ -336,7 +341,7 @@ static _Float32 lastThrottlingValue=0;
 static _Float32 lastBrakingValue=0;
 static uint32_t lastTof1Value=0;
 static uint32_t lastTof2Value=0;
-static uint32_t lastLaneValue=0;
+static uint32_t lastMarkValue=0;
 
 bool RosInterface::saveImage(const sensor_msgs::ImageConstPtr& image_msg, std::string &jpgFilename) {
     cv::Mat image;
@@ -382,7 +387,7 @@ bool RosInterface::saveData(const sensor_msgs::ImageConstPtr& image_msg, std::st
    obj["mode"] = drivingMode2str[drivingMode];
    obj["tof1"] = lastTof1Value;
    obj["tof2"] = lastTof2Value;
-   obj["mark"] = lastLaneValue;
+   obj["mark"] = lastMarkValue;
    obj["brake"] = lastBrakingValue;
    jsonFile << obj << std::endl;
    jsonFile.close();
@@ -419,12 +424,15 @@ void RosInterface::callbackNoCameraInfo(const sensor_msgs::ImageConstPtr& image_
    std::string jpgFilename;
 
     if (record_data && (
-            ((drivingMode == 1 ) && (lastThrottlingValue > 0.0))
-         || (drivingMode == 2 ))) {
+    ((drivingMode == 1 ) && (lastThrottlingValue > 0.0))
+    || (drivingMode == 2 ))) {
+        if (mark_base_filtering == true && (lastMarkValue < robocars_msgs::robocars_mark::SWITCH_MARK_2)) {
+            return;
+        }
         if (!saveImage(image_msg, jpgFilename))
-        return;
+            return;
 
-        // save the metadata
+            // save the metadata
         saveData (image_msg, jpgFilename);
         imageCount_++;
     }
@@ -457,7 +465,7 @@ void RosInterface::tof2_msg_cb(const robocars_msgs::robocars_tof::ConstPtr& msg)
 }
 
 void RosInterface::mark_msg_cb(const robocars_msgs::robocars_mark::ConstPtr& msg){
-    lastLaneValue = msg->mark;
+    lastMarkValue = msg->mark;
 }
 
 #endif
