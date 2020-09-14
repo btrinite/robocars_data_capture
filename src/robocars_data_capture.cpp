@@ -352,7 +352,10 @@ bool RosInterface::saveImage(const sensor_msgs::ImageConstPtr& image_msg, std::s
       } catch (...) { file_format.clear(); }
 
       cv::imwrite(jpgFilename, image);
-
+      if ((imageCount_%100)==0) {
+        ROS_INFO("Data Capture: %05d images saved", imageCount_);
+      }
+    
     } else {
         ROS_WARN("Couldn't save image, no data!");
         return false;
