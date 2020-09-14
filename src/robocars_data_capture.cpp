@@ -317,13 +317,15 @@ void RosInterface::initSub () {
 #endif
     sync.registerCallback(boost::bind(&RosInterface::callback,this, _1, _2, _3, _4, _5, _6));
 #else
-    steering_sub = node_.subscribe<robocars_msgs::robocars_actuator_output>("/steering_ctrl/output", 2, &RosInterface::steering_msg_cb, this);
-    throttling_sub = node_.subscribe<robocars_msgs::robocars_actuator_output>("/throttling_ctrl/output", 2, &RosInterface::throttling_msg_cb, this);
-    //sub_image_and_camera = it->subscribeCamera("/front_video_resize/image", 2, &RosInterface::callbackWithCameraInfo, this);
-    sub_image = it->subscribe("/front_video_resize/image", 2, &RosInterface::callbackNoCameraInfo, this);
-    tof1_sub = node_.subscribe<robocars_msgs::robocars_tof>("/sensors/tof1", 2, &RosInterface::tof1_msg_cb, this);
-    tof2_sub = node_.subscribe<robocars_msgs::robocars_tof>("/sensors/tof2", 2, &RosInterface::tof2_msg_cb, this);
-    mark_sub = node_.subscribe<robocars_msgs::robocars_mark>("/mark", 2, &RosInterface::mark_msg_cb, this);
+    steering_sub = node_.subscribe<robocars_msgs::robocars_actuator_output>("/steering_ctrl/output", 1, &RosInterface::steering_msg_cb, this);
+    throttling_sub = node_.subscribe<robocars_msgs::robocars_actuator_output>("/throttling_ctrl/output", 1, &RosInterface::throttling_msg_cb, this);
+    braking_sub = node_.subscribe<robocars_msgs::robocars_actuator_output>("/braking_ctrl/output", 1, &RosInterface::braking_msg_cb, this);
+    mark_sub = node_.subscribe<robocars_msgs::robocars_mark>("/mark", 1, &RosInterface::mark_msg_cb, this);
+    //sub_image_and_camera = it->subscribeCamera("/front_video_resize/image", 1, &RosInterface::callbackWithCameraInfo, this);
+    sub_image = it->subscribe("/front_video_resize/image", 1, &RosInterface::callbackNoCameraInfo, this);
+    tof1_sub = node_.subscribe<robocars_msgs::robocars_tof>("/sensors/tof1", 1, &RosInterface::tof1_msg_cb, this);
+    tof2_sub = node_.subscribe<robocars_msgs::robocars_tof>("/sensors/tof2", 1, &RosInterface::tof2_msg_cb, this);
+    mark_sub = node_.subscribe<robocars_msgs::robocars_mark>("/mark", 1, &RosInterface::mark_msg_cb, this);
 #endif
     state_sub = node_.subscribe<robocars_msgs::robocars_brain_state>("/robocars_brain_state", 2, &RosInterface::state_msg_cb, this);
 
@@ -331,6 +333,7 @@ void RosInterface::initSub () {
 
 static _Float32 lastSteeringValue=0;
 static _Float32 lastThrottlingValue=0;
+static _Float32 lastBrakingValue=0;
 static uint32_t lastTof1Value=0;
 static uint32_t lastTof2Value=0;
 static uint32_t lastLaneValue=0;
@@ -380,6 +383,7 @@ bool RosInterface::saveData(const sensor_msgs::ImageConstPtr& image_msg, std::st
    obj["tof1"] = lastTof1Value;
    obj["tof2"] = lastTof2Value;
    obj["mark"] = lastLaneValue;
+   obj["brake"] = lastBrakingValue;
    jsonFile << obj << std::endl;
    jsonFile.close();
  
@@ -438,6 +442,14 @@ void RosInterface::steering_msg_cb(const robocars_msgs::robocars_actuator_output
 
 void RosInterface::throttling_msg_cb(const robocars_msgs::robocars_actuator_output::ConstPtr& msg){
     lastThrottlingValue = msg->norm;
+}
+
+void RosInterface::braking_msg_cb(const robocars_msgs::robocars_actuator_output::ConstPtr& msg){
+    lastBrakingValue = msg->norm;
+}
+
+void RosInterface::mark_msg_cb(const robocars_msgs::robocars_mark::ConstPtr& msg) {
+
 }
 
 void RosInterface::tof1_msg_cb(const robocars_msgs::robocars_tof::ConstPtr& msg){

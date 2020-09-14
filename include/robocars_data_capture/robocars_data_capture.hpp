@@ -142,12 +142,16 @@ class RosInterface
         void callbackWithCameraInfo(const sensor_msgs::ImageConstPtr& image_msg, const sensor_msgs::CameraInfoConstPtr& info);
         void steering_msg_cb(const robocars_msgs::robocars_actuator_output::ConstPtr& msg);
         void throttling_msg_cb(const robocars_msgs::robocars_actuator_output::ConstPtr& msg);
+        void braking_msg_cb(const robocars_msgs::robocars_actuator_output::ConstPtr& msg);
+        void mark_msg_cb(const robocars_msgs::robocars_mark::ConstPtr& msg);
         void tof1_msg_cb(const robocars_msgs::robocars_tof::ConstPtr& msg);
         void tof2_msg_cb(const robocars_msgs::robocars_tof::ConstPtr& msg);
         void mark_msg_cb(const robocars_msgs::robocars_mark::ConstPtr& msg);
 
         ros::Subscriber throttling_sub;
         ros::Subscriber steering_sub;
+        ros::Subscriber braking_sub;
+        ros::Subscriber mark_sub;
         ros::Subscriber tof1_sub;
         ros::Subscriber tof2_sub;
         ros::Subscriber mark_sub;
