@@ -448,10 +448,6 @@ void RosInterface::braking_msg_cb(const robocars_msgs::robocars_actuator_output:
     lastBrakingValue = msg->norm;
 }
 
-void RosInterface::mark_msg_cb(const robocars_msgs::robocars_mark::ConstPtr& msg) {
-
-}
-
 void RosInterface::tof1_msg_cb(const robocars_msgs::robocars_tof::ConstPtr& msg){
     lastTof1Value = msg->distance;
 }

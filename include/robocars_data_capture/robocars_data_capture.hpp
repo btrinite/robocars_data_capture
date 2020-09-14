@@ -146,7 +146,6 @@ class RosInterface
         void mark_msg_cb(const robocars_msgs::robocars_mark::ConstPtr& msg);
         void tof1_msg_cb(const robocars_msgs::robocars_tof::ConstPtr& msg);
         void tof2_msg_cb(const robocars_msgs::robocars_tof::ConstPtr& msg);
-        void mark_msg_cb(const robocars_msgs::robocars_mark::ConstPtr& msg);
 
         ros::Subscriber throttling_sub;
         ros::Subscriber steering_sub;
