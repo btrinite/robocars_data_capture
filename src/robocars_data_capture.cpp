@@ -426,7 +426,7 @@ void RosInterface::callbackNoCameraInfo(const sensor_msgs::ImageConstPtr& image_
     if (record_data && (
     ((drivingMode == 1 ) && (lastThrottlingValue > 0.0))
     || (drivingMode == 2 ))) {
-        if (mark_base_filtering == true && (lastMarkValue < robocars_msgs::robocars_mark::SWITCH_MARK_2)) {
+        if (drivingMode == 1 && mark_base_filtering == true && (lastMarkValue < robocars_msgs::robocars_mark::SWITCH_MARK_2)) {
             return;
         }
         if (!saveImage(image_msg, jpgFilename))
