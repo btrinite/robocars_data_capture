@@ -28,7 +28,7 @@
  *  - /sensors/tof1 : current data from sensors, not used for now
  *  - /sensors/tof2 : current data from sensors, not used for now
  *  - /front_video_resize/image : current image from camera
- *  - /mark : mark from radio controller (for manual marking with free channels)
+ *  - /annotation/mark : mark from radio controller (for manual marking with free channels)
  * 
  * Topic published :
  *  - None 
@@ -325,12 +325,11 @@ void RosInterface::initSub () {
     steering_sub = node_.subscribe<robocars_msgs::robocars_actuator_output>("/steering_ctrl/output", 1, &RosInterface::steering_msg_cb, this);
     throttling_sub = node_.subscribe<robocars_msgs::robocars_actuator_output>("/throttling_ctrl/output", 1, &RosInterface::throttling_msg_cb, this);
     braking_sub = node_.subscribe<robocars_msgs::robocars_actuator_output>("/braking_ctrl/output", 1, &RosInterface::braking_msg_cb, this);
-    mark_sub = node_.subscribe<robocars_msgs::robocars_mark>("/mark", 1, &RosInterface::mark_msg_cb, this);
+    mark_sub = node_.subscribe<robocars_msgs::robocars_mark>("/annotation/mark", 1, &RosInterface::mark_msg_cb, this);
     //sub_image_and_camera = it->subscribeCamera("/front_video_resize/image", 1, &RosInterface::callbackWithCameraInfo, this);
     sub_image = it->subscribe("/front_video_resize/image", 1, &RosInterface::callbackNoCameraInfo, this);
     tof1_sub = node_.subscribe<robocars_msgs::robocars_tof>("/sensors/tof1", 1, &RosInterface::tof1_msg_cb, this);
     tof2_sub = node_.subscribe<robocars_msgs::robocars_tof>("/sensors/tof2", 1, &RosInterface::tof2_msg_cb, this);
-    mark_sub = node_.subscribe<robocars_msgs::robocars_mark>("/mark", 1, &RosInterface::mark_msg_cb, this);
 #endif
     state_sub = node_.subscribe<robocars_msgs::robocars_brain_state>("/robocars_brain_state", 2, &RosInterface::state_msg_cb, this);
 
