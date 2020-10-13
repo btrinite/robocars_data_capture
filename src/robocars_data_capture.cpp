@@ -466,10 +466,6 @@ void RosInterface::telem_msg_cb(const robocars_msgs::robocars_telemetry::ConstPt
     lastCTEValue = msg->cte;
 }
 
-void RosInterface::telem_cte_msg_cb(const geometry_msgs::Twist::ConstPtr& msg){
-    lastCTEValue = msg->cte;
-}
-
 void RosInterface::tof1_msg_cb(const robocars_msgs::robocars_tof::ConstPtr& msg){
     lastTof1Value = msg->distance;
 }
