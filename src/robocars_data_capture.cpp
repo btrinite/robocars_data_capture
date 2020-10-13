@@ -68,6 +68,7 @@
 #include <robocars_msgs/robocars_brain_state.h>
 #include <robocars_msgs/robocars_mark.h>
 #include <robocars_msgs/robocars_tof.h>
+#include <robocars_msgs/robocars_telemetry.h>
 
 #include <robocars_data_capture.hpp>
 
@@ -330,6 +331,7 @@ void RosInterface::initSub () {
     sub_image = it->subscribe("/front_video_resize/image", 1, &RosInterface::callbackNoCameraInfo, this);
     tof1_sub = node_.subscribe<robocars_msgs::robocars_tof>("/sensors/tof1", 1, &RosInterface::tof1_msg_cb, this);
     tof2_sub = node_.subscribe<robocars_msgs::robocars_tof>("/sensors/tof2", 1, &RosInterface::tof2_msg_cb, this);
+    telem_sub = node_.subscribe<robocars_msgs::robocars_telemetry>("/telemetry",1,&RosInterface::telem_msg_cb, this);
 #endif
     state_sub = node_.subscribe<robocars_msgs::robocars_brain_state>("/robocars_brain_state", 2, &RosInterface::state_msg_cb, this);
 
@@ -338,6 +340,8 @@ void RosInterface::initSub () {
 static _Float32 lastSteeringValue=0;
 static _Float32 lastThrottlingValue=0;
 static _Float32 lastBrakingValue=0;
+static _Float32 lastSpeedValue=0;
+static _Float32 lastCTEValue=0;
 static uint32_t lastTof1Value=0;
 static uint32_t lastTof2Value=0;
 static uint32_t lastMarkValue=0;
@@ -388,6 +392,8 @@ bool RosInterface::saveData(const sensor_msgs::ImageConstPtr& image_msg, std::st
    obj["tof2"] = lastTof2Value;
    obj["mark"] = lastMarkValue;
    obj["brake"] = lastBrakingValue;
+   obj["telem/speed"] = lastSpeedValue;
+   obj["telem/cte"] = lastCTEValue;
    jsonFile << obj << std::endl;
    jsonFile.close();
  
@@ -453,6 +459,15 @@ void RosInterface::throttling_msg_cb(const robocars_msgs::robocars_actuator_outp
 
 void RosInterface::braking_msg_cb(const robocars_msgs::robocars_actuator_output::ConstPtr& msg){
     lastBrakingValue = msg->norm;
+}
+
+void RosInterface::telem_msg_cb(const robocars_msgs::robocars_telemetry::ConstPtr& msg){
+    lastSpeedValue = msg->speed;
+    lastCTEValue = msg->cte;
+}
+
+void RosInterface::telem_cte_msg_cb(const geometry_msgs::Twist::ConstPtr& msg){
+    lastCTEValue = msg->cte;
 }
 
 void RosInterface::tof1_msg_cb(const robocars_msgs::robocars_tof::ConstPtr& msg){
