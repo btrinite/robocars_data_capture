@@ -70,6 +70,8 @@
 #include <robocars_msgs/robocars_tof.h>
 #include <robocars_msgs/robocars_telemetry.h>
 
+#include <robocars_data_capture/robocars_datacapture_stats.h>
+
 #include <robocars_data_capture.hpp>
 
 RosInterface * ri;
@@ -337,6 +339,11 @@ void RosInterface::initSub () {
 
 }
 
+void RosInterface::initPub() {
+    stats_pub = node_.advertise<robocars_data_capture::robocars_datacapture_stats>("/datacapture/stats", 1);
+}
+
+
 static _Float32 lastSteeringValue=0;
 static _Float32 lastThrottlingValue=0;
 static _Float32 lastBrakingValue=0;
@@ -498,6 +505,17 @@ void RosInterface::state_msg_cb(const robocars_msgs::robocars_brain_state::Const
     }    
 }
 
+void RosInterface::reportStats(void) {
+
+    robocars_data_capture::robocars_datacapture_stats statsMsg;
+    statsMsg.header.stamp = ros::Time::now();
+    statsMsg.header.seq=1;
+    statsMsg.header.frame_id = "stats";
+    statsMsg.recordedImages = imageCount_+1;
+    statsMsg.currentTub = datasetCount_;
+    stats_pub.publish(statsMsg);
+
+}
 
 int main(int argc, char **argv)
 {
@@ -507,6 +525,7 @@ int main(int argc, char **argv)
     dataset_path_format.parse("%s/%s-%s-%02d/");
     ri = new RosInterface;
 
+    ri->initPub();
     fsm_list::start();
     ri->initSub();
 

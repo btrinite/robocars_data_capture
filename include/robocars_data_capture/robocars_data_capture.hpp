@@ -111,6 +111,10 @@ class RosInterface
         void initParam();
         void updateParam();
         void initSub();
+        void initPub();
+
+
+        void reportStats();
 
         void enableCapture ();
         void disableCapture ();
@@ -158,6 +162,10 @@ class RosInterface
         image_transport::ImageTransport * it;
         image_transport::CameraSubscriber sub_image_and_camera;
         image_transport::Subscriber sub_image;
+
+        //stats
+        ros::Publisher stats_pub;
+
 #endif
 
 };
