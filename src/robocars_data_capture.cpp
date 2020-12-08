@@ -516,7 +516,7 @@ void RosInterface::reportStats(void) {
     statsMsg.header.stamp = ros::Time::now();
     statsMsg.header.seq=1;
     statsMsg.header.frame_id = "stats";
-    statsMsg.recordedImages = imageCount_+1;
+    statsMsg.recordedImages = imageCount_;
     statsMsg.currentTub = datasetCount_;
     stats_pub.publish(statsMsg);
 
