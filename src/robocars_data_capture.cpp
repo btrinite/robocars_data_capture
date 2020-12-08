@@ -122,6 +122,11 @@ class onRunningMode
         };
 
         void react(TickEvent const & e) override {
+            RobocarsStateMachine::react(e);
+            __tick_count++;
+            if ((__tick_count%(uint32_t)(2000/loop_hz))==0) {
+                ri->reportStats();
+            }
         };
 
 };
