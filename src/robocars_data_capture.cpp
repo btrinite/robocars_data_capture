@@ -357,6 +357,7 @@ static _Float32 lastCTEValue=0;
 static uint32_t lastTof1Value=0;
 static uint32_t lastTof2Value=0;
 static uint32_t lastMarkValue=0;
+static uint32_t lastLinMarkValue=0;
 
 bool RosInterface::saveImage(const sensor_msgs::ImageConstPtr& image_msg, std::string &jpgFilename) {
     cv::Mat image;
@@ -403,6 +404,7 @@ bool RosInterface::saveData(const sensor_msgs::ImageConstPtr& image_msg, std::st
    obj["tof1"] = lastTof1Value;
    obj["tof2"] = lastTof2Value;
    obj["mark"] = lastMarkValue;
+   obj["linmark"] = lastLinMarkValue;
    obj["brake"] = lastBrakingValue;
    obj["telem/speed"] = lastSpeedValue;
    obj["telem/cte"] = lastCTEValue;
@@ -488,6 +490,7 @@ void RosInterface::tof2_msg_cb(const robocars_msgs::robocars_tof::ConstPtr& msg)
 
 void RosInterface::mark_msg_cb(const robocars_msgs::robocars_mark::ConstPtr& msg){
     lastMarkValue = msg->mark;
+    lastLinMarkValue = msg->linear;
 }
 
 #endif
