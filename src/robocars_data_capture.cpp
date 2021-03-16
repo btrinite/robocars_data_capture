@@ -81,7 +81,8 @@ static std::string encoding;
 static std::string filename_pattern;
 static std::string base_path;
 static std::string dataset_path;
-static bool mark_base_filtering;
+static bool mark_based_filtering;
+static bool throttle_based_filtering;
 static boost::format file_format;
 static boost::format dataset_path_format;
 
@@ -246,13 +247,17 @@ void RosInterface::initParam() {
     if (!node_.hasParam("mark_based_filtering")) {
         node_.setParam("mark_based_filtering",true);
     }
+    if (!node_.hasParam("throttle_based_filtering")) {
+        node_.setParam("throttle_based_filtering",true);
+    }
 }
 void RosInterface::updateParam() {
     node_.getParam("loop_hz", loop_hz);
     node_.getParam("encoding", encoding);
     node_.getParam("filename_pattern", filename_pattern);
     node_.getParam("base_path", base_path);
-    node_.getParam("mark_based_filtering", mark_base_filtering);
+    node_.getParam("mark_based_filtering", mark_based_filtering);
+    node_.getParam("throttle_based_filtering", throttle_based_filtering);
     file_format.parse(filename_pattern);
 }
 
@@ -442,10 +447,11 @@ void RosInterface::callback( const robocars_msgs::robocars_actuator_output::Cons
 void RosInterface::callbackNoCameraInfo(const sensor_msgs::ImageConstPtr& image_msg) {
    std::string jpgFilename;
 
-    if (record_data && (
-    ((drivingMode == 1 ) && (lastThrottlingValue > 0.0))
-    || (drivingMode == 2 ))) {
-        if (drivingMode == 1 && mark_base_filtering == true && (lastMarkValue < robocars_msgs::robocars_mark::SWITCH_MARK_2)) {
+    if (record_data && (((drivingMode == 1 ) || (drivingMode == 2 ))) {
+        if (drivingMode==1) && (throttle_based_filtering==true && lastThrottlingValue<0)) {
+            return;
+        }
+        if (drivingMode == 1 && mark_based_filtering == true && (lastMarkValue < robocars_msgs::robocars_mark::SWITCH_MARK_2)) {
             return;
         }
         if (!saveImage(image_msg, jpgFilename))
