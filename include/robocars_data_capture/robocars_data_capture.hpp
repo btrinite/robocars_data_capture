@@ -144,9 +144,9 @@ class RosInterface
 #else
         void callbackNoCameraInfo(const sensor_msgs::ImageConstPtr& image_msg);
         void callbackWithCameraInfo(const sensor_msgs::ImageConstPtr& image_msg, const sensor_msgs::CameraInfoConstPtr& info);
-        void steering_msg_cb(const robocars_msgs::robocars_actuator_output::ConstPtr& msg);
-        void throttling_msg_cb(const robocars_msgs::robocars_actuator_output::ConstPtr& msg);
-        void braking_msg_cb(const robocars_msgs::robocars_actuator_output::ConstPtr& msg);
+        void steering_msg_cb(const std_msgs::Float32::ConstPtr& msg);
+        void throttling_msg_cb(const std_msgs::Float32::ConstPtr& msg);
+        void braking_msg_cb(const std_msgs::Float32::ConstPtr& msg);
         void telem_msg_cb(const robocars_msgs::robocars_telemetry::ConstPtr& msg);        
         void mark_msg_cb(const robocars_msgs::robocars_mark::ConstPtr& msg);
         void tof1_msg_cb(const robocars_msgs::robocars_tof::ConstPtr& msg);

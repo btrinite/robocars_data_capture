@@ -63,6 +63,9 @@
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
 
+#include <std_msgs/Int16MultiArray.h>
+#include <std_msgs/Int16.h>
+#include <std_msgs/Float32.h>
 
 #include <robocars_msgs/robocars_actuator_output.h>
 #include <robocars_msgs/robocars_brain_state.h>
@@ -335,9 +338,9 @@ void RosInterface::initSub () {
 #endif
     sync.registerCallback(boost::bind(&RosInterface::callback,this, _1, _2, _3, _4, _5, _6));
 #else
-    steering_sub = node_.subscribe<robocars_msgs::robocars_actuator_output>("/steering_ctrl/output", 1, &RosInterface::steering_msg_cb, this);
-    throttling_sub = node_.subscribe<robocars_msgs::robocars_actuator_output>("/throttling_ctrl/output", 1, &RosInterface::throttling_msg_cb, this);
-    braking_sub = node_.subscribe<robocars_msgs::robocars_actuator_output>("/braking_ctrl/output", 1, &RosInterface::braking_msg_cb, this);
+    steering_sub = node_.subscribe<std_msgs::Float32>("/steering_ctrl/norm", 1, &RosInterface::steering_msg_cb, this);
+    throttling_sub = node_.subscribe<std_msgs::Float32>("/throttling_ctrl/norm", 1, &RosInterface::throttling_msg_cb, this);
+    braking_sub = node_.subscribe<std_msgs::Float32>("/braking_ctrl/norm", 1, &RosInterface::braking_msg_cb, this);
     mark_sub = node_.subscribe<robocars_msgs::robocars_mark>("/annotation/mark", 1, &RosInterface::mark_msg_cb, this);
     //sub_image_and_camera = it->subscribeCamera("/front_video_resize/image", 1, &RosInterface::callbackWithCameraInfo, this);
     sub_image = it->subscribe("/front_video_resize/image", 1, &RosInterface::callbackNoCameraInfo, this);
@@ -468,17 +471,17 @@ void RosInterface::callbackWithCameraInfo(const sensor_msgs::ImageConstPtr& imag
     callbackNoCameraInfo(image_msg);
 }
 
-void RosInterface::steering_msg_cb(const robocars_msgs::robocars_actuator_output::ConstPtr& msg){
-    lastSteeringValue = msg->norm;
+void RosInterface::steering_msg_cb(const std_msgs::Float32::ConstPtr& msg){
+    lastSteeringValue = msg->data;
 }
 
 
-void RosInterface::throttling_msg_cb(const robocars_msgs::robocars_actuator_output::ConstPtr& msg){
-    lastThrottlingValue = msg->norm;
+void RosInterface::throttling_msg_cb(const std_msgs::Float32::ConstPtr& msg){
+    lastThrottlingValue = msg->data;
 }
 
-void RosInterface::braking_msg_cb(const robocars_msgs::robocars_actuator_output::ConstPtr& msg){
-    lastBrakingValue = msg->norm;
+void RosInterface::braking_msg_cb(const std_msgs::Float32::ConstPtr& msg){
+    lastBrakingValue = msg->data;
 }
 
 void RosInterface::telem_msg_cb(const robocars_msgs::robocars_telemetry::ConstPtr& msg){
