@@ -498,7 +498,7 @@ void RosInterface::telem_msg_cb(const robocars_msgs::robocars_telemetry::ConstPt
 
 void RosInterface::sensors_msg_cb(const std_msgs::Int16MultiArray::ConstPtr& msg){
     if (msg->data[1]>0) {
-        lastSpeedValue = (_Float32) mapRange (3000,0,0,255,msg->data[1]);
+        lastSpeedValue = (_Float32) mapRange (0,3000,255,0,msg->data[1]);
     } else {
         lastSpeedValue =  0.0;
     }
