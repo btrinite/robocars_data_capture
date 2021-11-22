@@ -353,6 +353,7 @@ void RosInterface::initSub () {
     //tof1_sub = node_.subscribe<robocars_msgs::robocars_tof>("/sensors/tof1", 1, &RosInterface::tof1_msg_cb, this);
     //tof2_sub = node_.subscribe<robocars_msgs::robocars_tof>("/sensors/tof2", 1, &RosInterface::tof2_msg_cb, this);
     //telem_sub = node_.subscribe<robocars_msgs::robocars_telemetry>("/telemetry",1,&RosInterface::telem_msg_cb, this);
+    sensors_sub = node_.subscribe<std_msgs::Int16MultiArray>("/sensors",1,&RosInterface::sensors_msg_cb, this);
 #endif
     state_sub = node_.subscribe<robocars_msgs::robocars_brain_state>("/robocars_brain_state", 2, &RosInterface::state_msg_cb, this);
 
@@ -493,6 +494,14 @@ void RosInterface::braking_msg_cb(const std_msgs::Float32::ConstPtr& msg){
 void RosInterface::telem_msg_cb(const robocars_msgs::robocars_telemetry::ConstPtr& msg){
     lastSpeedValue = msg->speed;
     lastCTEValue = msg->cte;
+}
+
+void RosInterface::sensors_msg_cb(const std_msgs::Int16MultiArray::ConstPtr& msg){
+    if (msg->data[0]>0) {
+        lastSpeedValue = (_Float32) mapRange (3000,0,0,255,msg->data[0]);
+    } else {
+        lastSpeedValue =  0.0;
+    }
 }
 
 void RosInterface::tof1_msg_cb(const robocars_msgs::robocars_tof::ConstPtr& msg){

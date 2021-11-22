@@ -148,6 +148,7 @@ class RosInterface
         void throttling_msg_cb(const std_msgs::Float32::ConstPtr& msg);
         void braking_msg_cb(const std_msgs::Float32::ConstPtr& msg);
         void telem_msg_cb(const robocars_msgs::robocars_telemetry::ConstPtr& msg);        
+        void sensors_msg_cb(const std_msgs::Int16MultiArray::ConstPtr& msg);        
         void mark_msg_cb(const robocars_msgs::robocars_mark::ConstPtr& msg);
         void tof1_msg_cb(const robocars_msgs::robocars_tof::ConstPtr& msg);
         void tof2_msg_cb(const robocars_msgs::robocars_tof::ConstPtr& msg);
@@ -156,6 +157,7 @@ class RosInterface
         ros::Subscriber steering_sub;
         ros::Subscriber braking_sub;
         ros::Subscriber telem_sub;
+        ros::Subscriber sensors_sub;
         ros::Subscriber tof1_sub;
         ros::Subscriber tof2_sub;
         ros::Subscriber mark_sub;
