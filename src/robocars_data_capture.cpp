@@ -339,7 +339,7 @@ void RosInterface::initSub () {
     sync.registerCallback(boost::bind(&RosInterface::callback,this, _1, _2, _3, _4, _5, _6));
 #else
     steering_sub = node_.subscribe<std_msgs::Float32>("/steering_ctrl/norm", 1, &RosInterface::steering_msg_cb, this);
-    throttling_sub = node_.subscribe<std_msgs::Float32>("/throttling_ctrl/norm", 1, &RosInterface::throttling_msg_cb, this);
+    throttling_sub = node_.subscribe<std_msgs::Float32>("/throttle_ctrl/norm", 1, &RosInterface::throttling_msg_cb, this);
     braking_sub = node_.subscribe<std_msgs::Float32>("/braking_ctrl/norm", 1, &RosInterface::braking_msg_cb, this);
     mark_sub = node_.subscribe<robocars_msgs::robocars_mark>("/annotation/mark", 1, &RosInterface::mark_msg_cb, this);
     //sub_image_and_camera = it->subscribeCamera("/front_video_resize/image", 1, &RosInterface::callbackWithCameraInfo, this);
