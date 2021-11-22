@@ -88,6 +88,8 @@ static bool mark_based_filtering;
 static bool throttle_based_filtering;
 static boost::format file_format;
 static boost::format dataset_path_format;
+static float throttle_threshold;
+
 
 const char* drivingMode2str[] = {"idle", "user", "pilot"};
 static uint32_t drivingMode;
@@ -253,6 +255,9 @@ void RosInterface::initParam() {
     if (!node_.hasParam("throttle_based_filtering")) {
         node_.setParam("throttle_based_filtering",true);
     }
+    if (!node_.hasParam("throttle_threshold")) {
+        node_.setParam("throttle_threshold",0.01);
+    }
 }
 void RosInterface::updateParam() {
     node_.getParam("loop_hz", loop_hz);
@@ -261,6 +266,7 @@ void RosInterface::updateParam() {
     node_.getParam("base_path", base_path);
     node_.getParam("mark_based_filtering", mark_based_filtering);
     node_.getParam("throttle_based_filtering", throttle_based_filtering);
+    node_.getParam("throttle_threshold", throttle_threshold);
     file_format.parse(filename_pattern);
 }
 
@@ -451,7 +457,7 @@ void RosInterface::callbackNoCameraInfo(const sensor_msgs::ImageConstPtr& image_
    std::string jpgFilename;
 
     if (record_data && ((drivingMode == 1 ) || (drivingMode == 2 ))) {
-        if ((drivingMode==1) && (throttle_based_filtering==true && lastThrottlingValue<0)) {
+        if ((drivingMode==1) && (throttle_based_filtering==true && lastThrottlingValue<throttle_threshold)) {
             return;
         }
         if (drivingMode == 1 && mark_based_filtering == true && (lastMarkValue < robocars_msgs::robocars_mark::SWITCH_MARK_2)) {
