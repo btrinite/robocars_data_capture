@@ -89,6 +89,7 @@ static bool throttle_based_filtering;
 static boost::format file_format;
 static boost::format dataset_path_format;
 static float throttle_threshold;
+static int metadata_shift;
 
 
 const char* drivingMode2str[] = {"idle", "user", "pilot"};
@@ -258,6 +259,9 @@ void RosInterface::initParam() {
     if (!node_.hasParam("throttle_threshold")) {
         node_.setParam("throttle_threshold",0.01);
     }
+    if (!node_.hasParam("metadata_shift")) {
+        node_.setParam("metadata_shift",5);
+    }
 }
 void RosInterface::updateParam() {
     node_.getParam("loop_hz", loop_hz);
@@ -267,6 +271,7 @@ void RosInterface::updateParam() {
     node_.getParam("mark_based_filtering", mark_based_filtering);
     node_.getParam("throttle_based_filtering", throttle_based_filtering);
     node_.getParam("throttle_threshold", throttle_threshold);
+    node_.getParam("metadata_shift", metadata_shift);
     file_format.parse(filename_pattern);
 }
 
@@ -321,8 +326,8 @@ void RosInterface::initSub () {
 
     message_filters::Subscriber<robocars_msgs::robocars_actuator_output> throttling_sub (node_, "/steering_ctrl/output", 1);
     message_filters::Subscriber<robocars_msgs::robocars_actuator_output> steering_sub(node_,"/throttling_ctrl/output",1);
-    message_filters::Subscriber<robocars_msgs::robocars_tof> sensors_tof1_sub(node_,"/sensors/tof1",1);
-    message_filters::Subscriber<robocars_msgs::robocars_tof> sensors_tof2_sub(node_,"/sensors/tof2",1);
+//    message_filters::Subscriber<robocars_msgs::robocars_tof> sensors_tof1_sub(node_,"/sensors/tof1",1);
+//    message_filters::Subscriber<robocars_msgs::robocars_tof> sensors_tof2_sub(node_,"/sensors/tof2",1);
     message_filters::Subscriber<sensor_msgs::Image> image_sub(node_, "/front_video_resize/image", 1);
     message_filters::Subscriber<sensor_msgs::CameraInfo> info_sub(node_, "/front_video_resize/camera_info", 1);
 
@@ -334,15 +339,14 @@ void RosInterface::initSub () {
                         sensor_msgs::Image, 
                         sensor_msgs::CameraInfo> sync(throttling_sub, steering_sub, sensors_tof1_sub, sensors_tof2_sub, image_sub, info_sub, 10);
 #else
-    typedef message_filters::sync_policies::ApproximateTime<   robocars_msgs::robocars_actuator_output, 
-                        robocars_msgs::robocars_actuator_output, 
-                        robocars_msgs::robocars_tof, 
-                        robocars_msgs::robocars_tof, 
-                        sensor_msgs::Image, 
-                        sensor_msgs::CameraInfo> MySyncPolicy;
-    message_filters::Synchronizer<MySyncPolicy> sync(MySyncPolicy(10), throttling_sub, steering_sub, sensors_tof1_sub, sensors_tof2_sub, image_sub, info_sub);
+    typedef message_filters::sync_policies::ApproximateTime<
+        robocars_msgs::robocars_actuator_output, 
+        robocars_msgs::robocars_actuator_output, 
+        sensor_msgs::Image, 
+        sensor_msgs::CameraInfo> MySyncPolicy;
+    message_filters::Synchronizer<MySyncPolicy> sync(MySyncPolicy(10), throttling_sub, steering_sub, image_sub, info_sub);
 #endif
-    sync.registerCallback(boost::bind(&RosInterface::callback,this, _1, _2, _3, _4, _5, _6));
+    sync.registerCallback(boost::bind(&RosInterface::callback,this, _1, _2, _3, _4));
 #else
     steering_sub = node_.subscribe<std_msgs::Float32>("/steering_ctrl/norm", 1, &RosInterface::steering_msg_cb, this);
     throttling_sub = node_.subscribe<std_msgs::Float32>("/throttle_ctrl/norm", 1, &RosInterface::throttling_msg_cb, this);
@@ -432,16 +436,12 @@ bool RosInterface::saveData(const sensor_msgs::ImageConstPtr& image_msg, std::st
 #ifdef SYNCH_TOPICS
 void RosInterface::callback( const robocars_msgs::robocars_actuator_output::ConstPtr& steering,
                         const robocars_msgs::robocars_actuator_output::ConstPtr& throttling,
-                        const robocars_msgs::robocars_tof::ConstPtr& tof1,
-                        const robocars_msgs::robocars_tof::ConstPtr& tof2,
                         const sensor_msgs::ImageConstPtr& image, 
                         const sensor_msgs::CameraInfoConstPtr& cam_info) {
     std::string jpgFilename;
 
     lastSteeringValue = steering->norm;
     lastThrottlingValue = throttling->norm;
-    lastTof1Value = tof1->distance;
-    lastTof2Value = tof2->distance;
     if (record_data && lastThrottlingValue > 0.0) {
         if (!saveImage(image, jpgFilename))
         return;

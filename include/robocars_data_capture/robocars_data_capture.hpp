@@ -29,7 +29,7 @@
 #include <stdio.h>
 
 
-//#define SYNCH_TOPICS
+#define SYNCH_TOPICS
 //#define SIMPLE_SYNC
 
 struct BaseEvent : tinyfsm::Event
@@ -137,8 +137,6 @@ class RosInterface
 #ifdef SYNCH_TOPICS
         void callback(  const robocars_msgs::robocars_actuator_output::ConstPtr& steering,
                         const robocars_msgs::robocars_actuator_output::ConstPtr& throttling,
-                        const robocars_msgs::robocars_tof::ConstPtr& tof1,
-                        const robocars_msgs::robocars_tof::ConstPtr& tof2,
                         const sensor_msgs::ImageConstPtr& image, 
                         const sensor_msgs::CameraInfoConstPtr& cam_info);
 #else
@@ -164,11 +162,11 @@ class RosInterface
         image_transport::ImageTransport * it;
         image_transport::CameraSubscriber sub_image_and_camera;
         image_transport::Subscriber sub_image;
+#endif
 
         //stats
         ros::Publisher stats_pub;
 
-#endif
 
 };
 
