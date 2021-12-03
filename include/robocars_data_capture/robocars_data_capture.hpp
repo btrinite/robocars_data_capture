@@ -136,9 +136,9 @@ class RosInterface
 
 #ifdef SYNCH_TOPICS
         void callback(  const robocars_msgs::robocars_actuator_output::ConstPtr& steering,
-                        const robocars_msgs::robocars_actuator_output::ConstPtr& throttling,
+                        const robocars_msgs::robocars_actuator_output::ConstPtr& throttling/*,
                         const sensor_msgs::ImageConstPtr& image, 
-                        const sensor_msgs::CameraInfoConstPtr& cam_info);
+                        const sensor_msgs::CameraInfoConstPtr& cam_info*/);
 #else
         void callbackNoCameraInfo(const sensor_msgs::ImageConstPtr& image_msg);
         void callbackWithCameraInfo(const sensor_msgs::ImageConstPtr& image_msg, const sensor_msgs::CameraInfoConstPtr& info);

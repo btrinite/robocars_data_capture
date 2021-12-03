@@ -324,12 +324,12 @@ void RosInterface::initSub () {
 
 #ifdef SYNCH_TOPICS
 
-    message_filters::Subscriber<robocars_msgs::robocars_actuator_output> throttling_sub (node_, "/steering_ctrl/full", 1);
-    message_filters::Subscriber<robocars_msgs::robocars_actuator_output> steering_sub(node_,"/throttling_ctrl/full",1);
+    message_filters::Subscriber<robocars_msgs::robocars_actuator_output> throttling_sub (node_, "/steering_ctrl/full", 10);
+    message_filters::Subscriber<robocars_msgs::robocars_actuator_output> steering_sub(node_,"/throttling_ctrl/full",10);
 //    message_filters::Subscriber<robocars_msgs::robocars_tof> sensors_tof1_sub(node_,"/sensors/tof1",1);
 //    message_filters::Subscriber<robocars_msgs::robocars_tof> sensors_tof2_sub(node_,"/sensors/tof2",1);
-    message_filters::Subscriber<sensor_msgs::Image> image_sub(node_, "/front_video_resize/image", 1);
-    message_filters::Subscriber<sensor_msgs::CameraInfo> info_sub(node_, "/front_video_resize/camera_info", 1);
+//    message_filters::Subscriber<sensor_msgs::Image> image_sub(node_, "/front_video_resize/image", 1);
+//    message_filters::Subscriber<sensor_msgs::CameraInfo> info_sub(node_, "/front_video_resize/camera_info", 1);
 
 #ifdef SIMPLE_SYNC
     message_filters::TimeSynchronizer<   robocars_msgs::robocars_actuator_output, 
@@ -341,12 +341,13 @@ void RosInterface::initSub () {
 #else
     typedef message_filters::sync_policies::ApproximateTime<
         robocars_msgs::robocars_actuator_output, 
-        robocars_msgs::robocars_actuator_output, 
+        robocars_msgs::robocars_actuator_output/*, 
         sensor_msgs::Image, 
-        sensor_msgs::CameraInfo> MySyncPolicy;
-    message_filters::Synchronizer<MySyncPolicy> sync(MySyncPolicy(10), throttling_sub, steering_sub, image_sub, info_sub);
+        sensor_msgs::CameraInfo*/> MySyncPolicy;
+    message_filters::Synchronizer<MySyncPolicy> sync(MySyncPolicy(50), throttling_sub, steering_sub/*, image_sub, info_sub*/);
+
 #endif
-    sync.registerCallback(boost::bind(&RosInterface::callback,this, _1, _2, _3, _4));
+    sync.registerCallback(boost::bind(&RosInterface::callback,this, _1, _2/*, _3, _4*/));
 #else
     steering_sub = node_.subscribe<std_msgs::Float32>("/steering_ctrl/norm", 1, &RosInterface::steering_msg_cb, this);
     throttling_sub = node_.subscribe<std_msgs::Float32>("/throttle_ctrl/norm", 1, &RosInterface::throttling_msg_cb, this);
@@ -435,9 +436,9 @@ bool RosInterface::saveData(const sensor_msgs::ImageConstPtr& image_msg, std::st
 
 #ifdef SYNCH_TOPICS
 void RosInterface::callback( const robocars_msgs::robocars_actuator_output::ConstPtr& steering,
-                        const robocars_msgs::robocars_actuator_output::ConstPtr& throttling,
+                        const robocars_msgs::robocars_actuator_output::ConstPtr& throttling/*,
                         const sensor_msgs::ImageConstPtr& image, 
-                        const sensor_msgs::CameraInfoConstPtr& cam_info) {
+                        const sensor_msgs::CameraInfoConstPtr& cam_info*/) {
     std::string jpgFilename;
 
     lastSteeringValue = steering->norm;
@@ -450,11 +451,11 @@ void RosInterface::callback( const robocars_msgs::robocars_actuator_output::Cons
             return;
         }
 
-        if (!saveImage(image, jpgFilename))
-        return;
+        //if (!saveImage(image, jpgFilename))
+        //return;
 
         // save the metadata
-        saveData (image, jpgFilename);
+        //saveData (image, jpgFilename);
         imageCount_++;
     }
     
