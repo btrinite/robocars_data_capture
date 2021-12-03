@@ -138,20 +138,22 @@ class RosInterface
 
         typedef message_filters::sync_policies::ApproximateTime<
             robocars_msgs::robocars_actuator_output, 
-            robocars_msgs::robocars_actuator_output/*, 
+            robocars_msgs::robocars_actuator_output, 
             sensor_msgs::Image, 
-            sensor_msgs::CameraInfo*/> MySyncPolicy;
+            sensor_msgs::CameraInfo> MySyncPolicy;
             message_filters::Synchronizer<MySyncPolicy>* sync;
 
         message_filters::Subscriber<robocars_msgs::robocars_actuator_output> throttling_sub;
         message_filters::Subscriber<robocars_msgs::robocars_actuator_output> steering_sub;
+        message_filters::Subscriber<sensor_msgs::Image> image_sub;
+        message_filters::Subscriber<sensor_msgs::CameraInfo> info_sub;
 
         typedef message_filters::Synchronizer<MySyncPolicy> Sync;
         boost::shared_ptr<Sync> sync_;
         void callback(  const robocars_msgs::robocars_actuator_output::ConstPtr& steering,
-                        const robocars_msgs::robocars_actuator_output::ConstPtr& throttling/*,
+                        const robocars_msgs::robocars_actuator_output::ConstPtr& throttling,
                         const sensor_msgs::ImageConstPtr& image, 
-                        const sensor_msgs::CameraInfoConstPtr& cam_info*/);
+                        const sensor_msgs::CameraInfoConstPtr& cam_info);
 #else
         void callbackNoCameraInfo(const sensor_msgs::ImageConstPtr& image_msg);
         void callbackWithCameraInfo(const sensor_msgs::ImageConstPtr& image_msg, const sensor_msgs::CameraInfoConstPtr& info);
