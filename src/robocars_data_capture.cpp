@@ -324,8 +324,8 @@ void RosInterface::initSub () {
 
 #ifdef SYNCH_TOPICS
 
-    message_filters::Subscriber<robocars_msgs::robocars_actuator_output> throttling_sub (node_, "/steering_ctrl/full", 10);
-    message_filters::Subscriber<robocars_msgs::robocars_actuator_output> steering_sub(node_,"/throttle_ctrl/full",10);
+    message_filters::Subscriber<robocars_msgs::robocars_actuator_output> steering_sub (node_, "/steering_ctrl/full", 10);
+    message_filters::Subscriber<robocars_msgs::robocars_actuator_output> throttling_sub(node_,"/throttle_ctrl/full",10);
 //    message_filters::Subscriber<robocars_msgs::robocars_tof> sensors_tof1_sub(node_,"/sensors/tof1",1);
 //    message_filters::Subscriber<robocars_msgs::robocars_tof> sensors_tof2_sub(node_,"/sensors/tof2",1);
 //    message_filters::Subscriber<sensor_msgs::Image> image_sub(node_, "/front_video_resize/image", 1);
@@ -344,10 +344,11 @@ void RosInterface::initSub () {
         robocars_msgs::robocars_actuator_output/*, 
         sensor_msgs::Image, 
         sensor_msgs::CameraInfo*/> MySyncPolicy;
-    message_filters::Synchronizer<MySyncPolicy> sync(MySyncPolicy(50), throttling_sub, steering_sub/*, image_sub, info_sub*/);
+    message_filters::Synchronizer<MySyncPolicy>* sync;
+    sync = new message_filters::Synchronizer<MySyncPolicy>(MySyncPolicy(10), throttling_sub, steering_sub/*, image_sub, info_sub*/);
 
 #endif
-    sync.registerCallback(boost::bind(&RosInterface::callback,this, _1, _2/*, _3, _4*/));
+    sync->registerCallback(boost::bind(&RosInterface::callback,this, _1, _2/*, _3, _4*/));
 #else
     steering_sub = node_.subscribe<std_msgs::Float32>("/steering_ctrl/norm", 1, &RosInterface::steering_msg_cb, this);
     throttling_sub = node_.subscribe<std_msgs::Float32>("/throttle_ctrl/norm", 1, &RosInterface::throttling_msg_cb, this);
