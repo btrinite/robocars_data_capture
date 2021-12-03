@@ -324,8 +324,8 @@ void RosInterface::initSub () {
 
 #ifdef SYNCH_TOPICS
 
-    message_filters::Subscriber<robocars_msgs::robocars_actuator_output> throttling_sub (node_, "/steering_ctrl/output", 1);
-    message_filters::Subscriber<robocars_msgs::robocars_actuator_output> steering_sub(node_,"/throttling_ctrl/output",1);
+    message_filters::Subscriber<robocars_msgs::robocars_actuator_output> throttling_sub (node_, "/steering_ctrl/full", 1);
+    message_filters::Subscriber<robocars_msgs::robocars_actuator_output> steering_sub(node_,"/throttling_ctrl/full",1);
 //    message_filters::Subscriber<robocars_msgs::robocars_tof> sensors_tof1_sub(node_,"/sensors/tof1",1);
 //    message_filters::Subscriber<robocars_msgs::robocars_tof> sensors_tof2_sub(node_,"/sensors/tof2",1);
     message_filters::Subscriber<sensor_msgs::Image> image_sub(node_, "/front_video_resize/image", 1);
