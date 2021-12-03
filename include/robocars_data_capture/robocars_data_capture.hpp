@@ -135,6 +135,19 @@ class RosInterface
         ros::Subscriber state_sub;
 
 #ifdef SYNCH_TOPICS
+
+        typedef message_filters::sync_policies::ApproximateTime<
+            robocars_msgs::robocars_actuator_output, 
+            robocars_msgs::robocars_actuator_output/*, 
+            sensor_msgs::Image, 
+            sensor_msgs::CameraInfo*/> MySyncPolicy;
+            message_filters::Synchronizer<MySyncPolicy>* sync;
+
+        message_filters::Subscriber<robocars_msgs::robocars_actuator_output> throttling_sub;
+        message_filters::Subscriber<robocars_msgs::robocars_actuator_output> steering_sub;
+
+        typedef message_filters::Synchronizer<MySyncPolicy> Sync;
+        boost::shared_ptr<Sync> sync_;
         void callback(  const robocars_msgs::robocars_actuator_output::ConstPtr& steering,
                         const robocars_msgs::robocars_actuator_output::ConstPtr& throttling/*,
                         const sensor_msgs::ImageConstPtr& image, 
