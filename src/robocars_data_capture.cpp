@@ -442,7 +442,14 @@ void RosInterface::callback( const robocars_msgs::robocars_actuator_output::Cons
 
     lastSteeringValue = steering->norm;
     lastThrottlingValue = throttling->norm;
-    if (record_data && lastThrottlingValue > 0.0) {
+    if (record_data && ((drivingMode == 1 ) || (drivingMode == 2 ))) {
+        if ((drivingMode==1) && (throttle_based_filtering==true && lastThrottlingValue<throttle_threshold)) {
+            return;
+        }
+        if (drivingMode == 1 && mark_based_filtering == true && (lastMarkValue < robocars_msgs::robocars_mark::SWITCH_MARK_2)) {
+            return;
+        }
+
         if (!saveImage(image, jpgFilename))
         return;
 
