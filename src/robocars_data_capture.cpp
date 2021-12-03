@@ -441,6 +441,8 @@ void RosInterface::callback( const robocars_msgs::robocars_actuator_output::Cons
                         const sensor_msgs::CameraInfoConstPtr& cam_info*/) {
     std::string jpgFilename;
 
+    ROS_INFO("Topics Synch]: %05ld", imageCount_);
+
     lastSteeringValue = steering->norm;
     lastThrottlingValue = throttling->norm;
     if (record_data && ((drivingMode == 1 ) || (drivingMode == 2 ))) {
