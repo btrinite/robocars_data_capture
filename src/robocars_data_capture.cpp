@@ -435,18 +435,17 @@ bool RosInterface::saveData(const sensor_msgs::ImageConstPtr& image_msg, std::st
 }
 
 #ifdef SYNCH_TOPICS
-void RosInterface::callback( const robocars_msgs::robocars_actuator_output::ConstPtr& steering,
-                        const robocars_msgs::robocars_actuator_output::ConstPtr& throttling,
+void RosInterface::callback( const robocars_msgs::robocars_actuator_output::ConstPtr& throttling,
+                        const robocars_msgs::robocars_actuator_output::ConstPtr& steering,
                         const sensor_msgs::ImageConstPtr& image, 
                         const sensor_msgs::CameraInfoConstPtr& cam_info) {
     std::string jpgFilename;
 
-    ROS_INFO("Topics Synch]: %05ld", imageCount_);
-
     lastSteeringValue = steering->norm;
     lastThrottlingValue = throttling->norm;
+
     if (record_data && ((drivingMode == 1 ) || (drivingMode == 2 ))) {
-        if ((drivingMode==1) && (throttle_based_filtering==true && lastThrottlingValue<throttle_threshold)) {
+        if (drivingMode==1 && throttle_based_filtering==true && lastThrottlingValue<throttle_threshold) {
             return;
         }
         if (drivingMode == 1 && mark_based_filtering == true && (lastMarkValue < robocars_msgs::robocars_mark::SWITCH_MARK_2)) {
