@@ -346,7 +346,7 @@ void RosInterface::initSub () {
     //sync = new message_filters::Synchronizer<MySyncPolicy>(MySyncPolicy(10), throttling_sub, steering_sub/*, image_sub, info_sub*/);
 
 #endif
-    sync_.reset(new Sync(MySyncPolicy(10), throttling_sub, steering_sub, image_sub, info_sub));
+    sync_.reset(new Sync(MySyncPolicy(15), throttling_sub, steering_sub, image_sub, info_sub));
     sync_->registerCallback(boost::bind(&RosInterface::callback,this, _1, _2, _3, _4));
 #else
     steering_sub = node_.subscribe<std_msgs::Float32>("/steering_ctrl/norm", 1, &RosInterface::steering_msg_cb, this);
